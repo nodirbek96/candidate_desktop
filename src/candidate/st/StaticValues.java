@@ -16,7 +16,7 @@ import javafx.stage.Stage;
  */
 public class StaticValues {
     public static String DB_USERNAME="root";
-    public static String DB_PASSWORD="Nodir$9669";
+    public static String DB_PASSWORD="1234";
     
     public static Double LOGIN_FONT_VALUE=20.0;
     public static Double MAINPAGE_FONT_VALUE=18.0;
