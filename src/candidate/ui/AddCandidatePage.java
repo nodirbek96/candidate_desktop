@@ -3,8 +3,18 @@ package candidate.ui;
 import candidate.entity.candidate.CandidateCallbacks;
 import candidate.entity.candidate.CandidateDto;
 import candidate.entity.candidate.CandidateRepository;
+import candidate.entity.uploaded_file.UploadedFile;
+import candidate.entity.uploaded_file.UploadedFileCallbacks;
+import candidate.entity.uploaded_file.UploadedFileRepository;
 import candidate.st.StaticValues;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -17,7 +27,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -25,10 +37,15 @@ public class AddCandidatePage {
 
     private CandidateCallbacks candidateCallbacks;
     private AddCandidateStageClosedCallbacks addCandidateStageClosedCallbacks;
+    private UploadedFileCallbacks uploadedFileCallbacks;
+    private File selectedFile;
+
+    private boolean isFileSelected = false;
 
     public AddCandidatePage() {
         candidateCallbacks = new CandidateRepository();
         addCandidateStageClosedCallbacks = new MainScreenPage();
+        uploadedFileCallbacks = new UploadedFileRepository();
     }
 
     public void makeStage() {
@@ -83,12 +100,17 @@ public class AddCandidatePage {
         Button btnFileChooser = new Button("Файл выбора");
         Label labelResult = new Label("Результат");
         TextArea txtResult = new TextArea();
+        Label labelSelectedFile = new Label();
+        labelSelectedFile.setTextFill(Color.GREEN);
         txtResult.setPrefHeight(50);
         txtResult.setPrefWidth(300);
 
+        FileChooser fileChooser = new FileChooser();
+
+
         DatePicker datePickerEndDate = new DatePicker();
         datePickerEndDate.setValue(LocalDate.now());
-        
+
         grid.add(labelFirstname, 0, 0);
         grid.add(txtFirstname, 1, 0);
         grid.add(labelMiddleName, 2, 0);
@@ -120,6 +142,7 @@ public class AddCandidatePage {
         grid.add(labelResult, 0, 7);
         grid.add(txtResult, 1, 7, 2, 1);
         grid.add(datePickerEndDate, 3, 7);
+        grid.add(labelSelectedFile, 0, 8, 3, 1);
 
         grid.setHgap(10);
         grid.setVgap(10);
@@ -140,8 +163,31 @@ public class AddCandidatePage {
             stage.close();
         });
 
+        btnFileChooser.setOnAction(e -> {
+            selectedFile = fileChooser.showOpenDialog(stage);
+            if (selectedFile != null) {
+                isFileSelected = true;
+                labelSelectedFile.setText(selectedFile.getAbsolutePath());
+            } else {
+                isFileSelected = false;
+                labelSelectedFile.setText("Файл не выбран");
+            }
+        });
+
         btnSave.setOnAction(e -> {
             System.out.println("Saved is pressed");
+            Path path = Paths.get(selectedFile.getAbsolutePath());
+
+            String filePath;
+            String fileName = null;
+            if (!isFileSelected) {
+                labelSelectedFile.setText("Файл не выбран");
+                filePath = "Файл не выбран";
+            } else {
+                filePath = selectedFile.getAbsolutePath();
+                fileName = selectedFile.getName();
+            }
+
             String firstname = txtFirstname.getText();
             String lastname = txtLastname.getText();
             String middlename = txtMiddlename.getText();
@@ -177,11 +223,32 @@ public class AddCandidatePage {
             candidateDto.setEndDate(endDate);
             candidateDto.setUserId(1);
 
+
             CandidateDto savedCandidateDto = insertCandidate(candidateDto);
             if (savedCandidateDto != null) {
                 System.out.println("Candidate is saved into db ");
-                System.out.println("Candidate " + savedCandidateDto.toString());
+                System.out.println("Candidate " + savedCandidateDto);
                 addCandidateStageClosedCallbacks.stageClosed();
+                if (uploadedFileCallbacks.createFileUploadTable()) {
+                    assert fileName != null;
+                    try {
+                        UploadedFile uploadedFile = uploadedFileCallbacks.insertFile(new UploadedFile(
+                                savedCandidateDto.getId(),
+                                fileName,
+                                fileName.substring(fileName.lastIndexOf(".") + 1),
+                                filePath,
+                                null,
+                                Math.toIntExact(Files.size(path))
+                        ));
+                        UploadedFile saved = uploadedFileCallbacks.insertFile(uploadedFile);
+                        System.out.println("File: "+saved);
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+
+                } else {
+                    System.out.println("files table not created");
+                }
                 stage.close();
             } else {
                 System.out.println("Candidate is not saved ");

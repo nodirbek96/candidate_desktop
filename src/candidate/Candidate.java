@@ -27,11 +27,6 @@ public class Candidate extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-//        UserTableCallbacks userTableCallbacks=new UserRepository();
-//        if(userTableCallbacks.createUserTable()){
-//            User user=userTableCallbacks.insertUser(new User("Nodirbek", "Hasanboev", "Nodir", "1234"));
-//            System.out.println("inserted user: "+user.toString());
-//        }
         BorderPane borderPane = new BorderPane();
         // borderPane.setTop(buttonAddUser);
         borderPane.setPadding(new Insets(10, 10, 10, 10));
