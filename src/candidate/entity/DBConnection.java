@@ -1,9 +1,5 @@
 package candidate.entity;
 
-/**
- *
- * @author nodirbek
- */
 import candidate.st.StaticValues;
 
 import java.sql.Connection;

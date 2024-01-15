@@ -1,15 +1,16 @@
 package candidate;
 
+import candidate.entity.user.User;
+import candidate.entity.user.UserRepository;
+import candidate.entity.user.UserTableCallbacks;
 import candidate.st.StaticValues;
 import candidate.ui.MainScreenPage;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -18,14 +19,14 @@ import javafx.stage.Stage;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Screen;
 
-/**
- *
- * @author nodirbek
- */
 public class Candidate extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        UserTableCallbacks userTableCallbacks = new UserRepository();
+        userTableCallbacks.createUserTable();
+        // userTableCallbacks.insertUser(new User("Nodirbek","Hasanboev","creator","1234"));
+        Alert alert = new Alert(Alert.AlertType.NONE);
 
         BorderPane borderPane = new BorderPane();
         // borderPane.setTop(buttonAddUser);
@@ -87,7 +88,25 @@ public class Candidate extends Application {
 
         // actions
         btnSubmit.setOnAction(e -> {
-            MainScreenPage mainScreenPage = new MainScreenPage();
+            boolean status = userTableCallbacks.checkUser(textFieldUsername.getText(), passwordField.getText());
+            if (status) {
+                MainScreenPage mainScreenPage = new MainScreenPage();
+            } else {
+                alert.setAlertType(Alert.AlertType.INFORMATION);
+                alert.setContentText("Пароль или имя пользователя неверны");
+                alert.show();
+            }
+        });
+
+        passwordField.setOnKeyPressed(e -> {
+            if (e.getCode().equals(KeyCode.ENTER)) {
+                btnSubmit.fire();
+            }
+        });
+        textFieldUsername.setOnKeyPressed(e -> {
+            if (e.getCode().equals(KeyCode.ENTER)) {
+                btnSubmit.fire();
+            }
         });
     }
 

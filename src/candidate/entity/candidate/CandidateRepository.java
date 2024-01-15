@@ -230,7 +230,7 @@ public class CandidateRepository implements CandidateCallbacks {
                     resultSet.getString(13), // relative 
                     resultSet.getString(14), // position
                     resultSet.getString(15), // passport
-                    resultSet.getDate(16).toLocalDate(), // enddate
+                    resultSet.getDate(16).toLocalDate(), // end date
                     resultSet.getString(17), // result
                     resultSet.getTimestamp(18).toLocalDateTime() // created
             ));

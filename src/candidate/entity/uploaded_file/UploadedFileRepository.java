@@ -2,8 +2,7 @@ package candidate.entity.uploaded_file;
 
 import candidate.entity.DBConnection;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.sql.*;
 import java.util.List;
 
@@ -25,7 +24,7 @@ public class UploadedFileRepository implements UploadedFileCallbacks {
                     "file_url VARCHAR(255) NOT NULL, " +
                     "saved_url VARCHAR(255), " +
                     "size int(11), " +
-                    "payload BLOB NOT NULL, " +
+                    "payload LONGBLOB, " +
                     "created_date TIMESTAMP default CURRENT_TIMESTAMP NOT NULL, " +
                     "PRIMARY KEY(id))";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -90,5 +89,58 @@ public class UploadedFileRepository implements UploadedFileCallbacks {
     @Override
     public List<UploadedFile> getAllFiles() {
         return null;
+    }
+
+    @Override
+    public String isFileUploaded(Integer candidateId) {
+        connection = DBConnection.makeConnection();
+        String status = "NONE";
+        try {
+            if (connection.isClosed())
+                connection = DBConnection.makeConnection();
+            String query = "SELECT payload,file_name FROM files WHERE candidate_id='" + candidateId + "'";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                if (resultSet.getBlob(1) != null) {
+                    String fileName = resultSet.getString(2);
+                    return fileName.substring(fileName.indexOf('.') + 1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return status;
+    }
+
+    @Override
+    public boolean downloadFile(Integer candidateId, File file) {
+        boolean status = false;
+        connection = DBConnection.makeConnection();
+        try {
+            if (connection.isClosed())
+                connection = DBConnection.makeConnection();
+            String query = "SELECT payload FROM files WHERE candidate_id='" + candidateId + "'";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                Blob payload = resultSet.getBlob(1);
+                BufferedInputStream is = new BufferedInputStream(payload.getBinaryStream());
+                FileOutputStream fos = new FileOutputStream(file);
+                byte[] buffer = new byte[2048];
+                int r;
+                while ((r = is.read(buffer)) != -1) {
+                    fos.write(buffer, 0, r);
+                }
+                fos.flush();
+                fos.close();
+                is.close();
+                payload.free();
+                status = true;
+            }
+        } catch (SQLException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        return status;
     }
 }

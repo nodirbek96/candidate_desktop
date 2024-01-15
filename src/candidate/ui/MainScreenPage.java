@@ -4,6 +4,8 @@ import candidate.Candidate;
 import candidate.entity.candidate.CandidateCallbacks;
 import candidate.entity.candidate.CandidateDto;
 import candidate.entity.candidate.CandidateRepository;
+import candidate.entity.uploaded_file.UploadedFileCallbacks;
+import candidate.entity.uploaded_file.UploadedFileRepository;
 import candidate.st.StaticValues;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -18,23 +20,24 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.FileChooser;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.util.List;
 
-/**
- * @author nodirbek
- */
 public class MainScreenPage implements AddCandidateStageClosedCallbacks {
 
     private Candidate candidate;
     private Stage primaryStage;
-    private CandidateCallbacks candidateCallbacks;
+    private final CandidateCallbacks candidateCallbacks;
+    private final UploadedFileCallbacks uploadedFileCallbacks;
     private TableView<CandidateDto> tableView;
 
     public MainScreenPage() {
         candidateCallbacks = new CandidateRepository();
+        uploadedFileCallbacks = new UploadedFileRepository();
         candidate = new Candidate();
         this.primaryStage = StaticValues.STAGE;
         primaryStage.setScene(new Scene(makePane()));
@@ -44,14 +47,17 @@ public class MainScreenPage implements AddCandidateStageClosedCallbacks {
         double height = Screen.getPrimary().getVisualBounds().getHeight();
         double width = Screen.getPrimary().getVisualBounds().getWidth();
         BorderPane root = new BorderPane();
+        Alert alert = new Alert(Alert.AlertType.NONE);
+
         root.setMinHeight(height);
         root.setMinWidth(width);
         MenuBar menuBar = new MenuBar();
         Menu menu = new Menu("App");
         menuBar.getMenus().add(menu);
-        MenuItem menuInfo = new MenuItem("Info");
+        MenuItem menuUserRegister = new MenuItem("Зарегистрировать пользователя");
+
         MenuItem menuContacts = new Menu("Contacts");
-        menu.getItems().addAll(menuInfo, menuContacts);
+        menu.getItems().addAll(menuUserRegister, menuContacts);
 
         HBox hboxTop = new HBox();
         Button btnAddCandidate = new Button(StaticValues.ADD_CANDIDATE);
@@ -128,7 +134,7 @@ public class MainScreenPage implements AddCandidateStageClosedCallbacks {
         ContextMenu contextMenu = new ContextMenu();
 
         // create menuitems
-        MenuItem showMenuItem = new MenuItem("Показать кандидата");
+        MenuItem showMenuItem = new MenuItem("Скачать сохраненный файл");
         MenuItem editMenuItem = new MenuItem("Редактировать");
         MenuItem deleteMenuItem = new MenuItem("Удалить");
 
@@ -151,14 +157,66 @@ public class MainScreenPage implements AddCandidateStageClosedCallbacks {
             AddCandidatePage addCandidatePage = new AddCandidatePage();
             addCandidatePage.makeStage(StaticValues.NEW_CANDIDATE, null);
         });
+
         editMenuItem.setOnAction(e -> {
             CandidateDto selectedCandidateDto = tableView.getSelectionModel().getSelectedItem();
             if (selectedCandidateDto != null) {
                 AddCandidatePage addCandidatePage = new AddCandidatePage();
                 addCandidatePage.makeStage(StaticValues.UPDATE_CANDIDATE, selectedCandidateDto);
+            } else {
+                alert.setAlertType(Alert.AlertType.ERROR);
+                alert.setContentText("Кандидат не выбран");
+                alert.show();
             }
         });
+
+        showMenuItem.setOnAction(e -> {
+            CandidateDto selectedCandidateDto = tableView.getSelectionModel().getSelectedItem();
+            if (selectedCandidateDto != null) {
+                String extension = isFileUploaded(selectedCandidateDto.getId());
+                if (extension.equals("NONE")) {
+                    alert.setAlertType(Alert.AlertType.ERROR);
+                    alert.setContentText("Файл не загружен этому кандидату");
+                    alert.show();
+                } else {
+                    FileChooser fileChooser = new FileChooser();
+                    FileChooser.ExtensionFilter extFilter =
+                            new FileChooser.ExtensionFilter(extension + " файл ", "*." + extension);
+                    fileChooser.getExtensionFilters().add(extFilter);
+                    File file = fileChooser.showSaveDialog(primaryStage);
+                    if (file != null) {
+                        if (downloadFile(selectedCandidateDto.getId(), file)) {
+                            alert.setAlertType(Alert.AlertType.INFORMATION);
+                            alert.setContentText("Файл успешно загружен " + file.getAbsolutePath());
+                            alert.show();
+                        } else {
+                            alert.setAlertType(Alert.AlertType.ERROR);
+                            alert.setContentText("Ошибка загрузки файла");
+                            alert.show();
+                        }
+                    }
+                }
+            } else {
+                alert.setAlertType(Alert.AlertType.ERROR);
+                alert.setContentText("Кандидат не выбран");
+                alert.show();
+            }
+        });
+        menuUserRegister.setOnAction(e -> {
+            UserRegister userRegister = new UserRegister();
+            userRegister.makeStage();
+        });
         return root;
+    }
+
+    private String isFileUploaded(Integer candidateId) {
+        uploadedFileCallbacks.createFileUploadTable();
+        return uploadedFileCallbacks.isFileUploaded(candidateId);
+    }
+
+    private boolean downloadFile(Integer candidateId, File file) {
+        uploadedFileCallbacks.createFileUploadTable();
+        return uploadedFileCallbacks.downloadFile(candidateId, file);
     }
 
     private ObservableList<CandidateDto> getCandidatesFromDb() {
