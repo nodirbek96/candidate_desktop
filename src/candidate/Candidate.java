@@ -1,5 +1,7 @@
 package candidate;
 
+import candidate.st.StaticValues;
+import candidate.ui.MainScreenPage;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -13,8 +15,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import candidate.st.StaticValues;
-import candidate.ui.MainScreenPage;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Screen;
 

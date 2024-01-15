@@ -110,9 +110,9 @@ public class MainScreenPage implements AddCandidateStageClosedCallbacks {
         makeHeaderWrappable(colEducation);
         TableColumn<CandidateDto, String> colRelative = new TableColumn<>("Родственник");
         colRelative.setCellValueFactory(new PropertyValueFactory<>("relative"));
-        TableColumn<CandidateDto, String> colPostion = new TableColumn<>("Ha какую должность рассматривается");
-        colPostion.setCellValueFactory(new PropertyValueFactory<>("position"));
-        makeHeaderWrappable(colPostion);
+        TableColumn<CandidateDto, String> colPosition = new TableColumn<>("Ha какую должность рассматривается");
+        colPosition.setCellValueFactory(new PropertyValueFactory<>("position"));
+        makeHeaderWrappable(colPosition);
         TableColumn<CandidateDto, String> colPassport = new TableColumn<>("Пасспорт");
         colPassport.setCellValueFactory(new PropertyValueFactory<>("passport"));
         TableColumn<CandidateDto, String> colFile = new TableColumn<>("Файл");
@@ -128,20 +128,20 @@ public class MainScreenPage implements AddCandidateStageClosedCallbacks {
         ContextMenu contextMenu = new ContextMenu();
 
         // create menuitems
-        MenuItem menuItem1 = new MenuItem("menu item 1");
-        MenuItem menuItem2 = new MenuItem("menu item 2");
-        MenuItem menuItem3 = new MenuItem("menu item 3");
+        MenuItem showMenuItem = new MenuItem("Показать кандидата");
+        MenuItem editMenuItem = new MenuItem("Редактировать");
+        MenuItem deleteMenuItem = new MenuItem("Удалить");
 
         // add menu items to menu
-        contextMenu.getItems().add(menuItem1);
-        contextMenu.getItems().add(menuItem2);
-        contextMenu.getItems().add(menuItem3);
+        contextMenu.getItems().add(showMenuItem);
+        contextMenu.getItems().add(editMenuItem);
+        contextMenu.getItems().add(deleteMenuItem);
 
         tableView.setContextMenu(contextMenu);
 
         tableView.getColumns().addAll(colId, colFirstname, colMiddlename, colLastname,
                 colBirthDate, colAddress, colPhone, colJobPlace, colOccupation, colEducationPlace,
-                colEducation, colRelative, colPostion, colPassport, colCreatedDate,
+                colEducation, colRelative, colPosition, colPassport, colCreatedDate,
                 colResult, colEndDate);
 
         tableView.setItems(getCandidatesFromDb());
@@ -149,7 +149,14 @@ public class MainScreenPage implements AddCandidateStageClosedCallbacks {
 
         btnAddCandidate.setOnAction(e -> {
             AddCandidatePage addCandidatePage = new AddCandidatePage();
-            addCandidatePage.makeStage();
+            addCandidatePage.makeStage(StaticValues.NEW_CANDIDATE, null);
+        });
+        editMenuItem.setOnAction(e -> {
+            CandidateDto selectedCandidateDto = tableView.getSelectionModel().getSelectedItem();
+            if (selectedCandidateDto != null) {
+                AddCandidatePage addCandidatePage = new AddCandidatePage();
+                addCandidatePage.makeStage(StaticValues.UPDATE_CANDIDATE, selectedCandidateDto);
+            }
         });
         return root;
     }

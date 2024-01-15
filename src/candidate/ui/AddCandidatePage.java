@@ -6,7 +6,6 @@ import candidate.entity.candidate.CandidateRepository;
 import candidate.entity.uploaded_file.UploadedFile;
 import candidate.entity.uploaded_file.UploadedFileCallbacks;
 import candidate.entity.uploaded_file.UploadedFileRepository;
-import candidate.st.StaticValues;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 
+import candidate.st.StaticValues;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -48,7 +48,7 @@ public class AddCandidatePage {
         uploadedFileCallbacks = new UploadedFileRepository();
     }
 
-    public void makeStage() {
+    public void makeStage(String def, CandidateDto selectedCandidate) {
 
         Stage stage = new Stage();
         BorderPane root = new BorderPane();
@@ -107,9 +107,26 @@ public class AddCandidatePage {
 
         FileChooser fileChooser = new FileChooser();
 
-
         DatePicker datePickerEndDate = new DatePicker();
         datePickerEndDate.setValue(LocalDate.now());
+
+        if (def.equalsIgnoreCase(StaticValues.UPDATE_CANDIDATE)) {
+            txtFirstname.setText(selectedCandidate.getFirstname());
+            txtLastname.setText(selectedCandidate.getLastname());
+            txtMiddlename.setText(selectedCandidate.getMiddleName());
+            txtAddress.setText(selectedCandidate.getAddress());
+            txtPhone.setText(selectedCandidate.getPhone());
+            txtPassport.setText(selectedCandidate.getPassport());
+            txtJobPlace.setText(selectedCandidate.getJobPlace());
+            txtEducation.setText(selectedCandidate.getEducation());
+            txtEducationPlace.setText(selectedCandidate.getEducationPlace());
+            txtOccupation.setText(selectedCandidate.getOccupation());
+            txtRelative.setText(selectedCandidate.getRelative());
+            txtResult.setText(selectedCandidate.getResult());
+            txtPosition.setText(selectedCandidate.getPosition());
+            datePickerBirhDate.setValue(selectedCandidate.getBirthDate());
+            datePickerEndDate.setValue(selectedCandidate.getEndDate());
+        }
 
         grid.add(labelFirstname, 0, 0);
         grid.add(txtFirstname, 1, 0);
@@ -176,7 +193,7 @@ public class AddCandidatePage {
 
         btnSave.setOnAction(e -> {
             System.out.println("Saved is pressed");
-            Path path = Paths.get(selectedFile.getAbsolutePath());
+            Path path = null;
 
             String filePath;
             String fileName = null;
@@ -186,6 +203,7 @@ public class AddCandidatePage {
             } else {
                 filePath = selectedFile.getAbsolutePath();
                 fileName = selectedFile.getName();
+                path = Paths.get(selectedFile.getAbsolutePath());
             }
 
             String firstname = txtFirstname.getText();
@@ -223,37 +241,44 @@ public class AddCandidatePage {
             candidateDto.setEndDate(endDate);
             candidateDto.setUserId(1);
 
+            if (def.equalsIgnoreCase(StaticValues.NEW_CANDIDATE)) {
+                CandidateDto savedCandidateDto = insertCandidate(candidateDto);
+                if (savedCandidateDto != null) {
+                    System.out.println("Candidate is saved into db ");
+                    System.out.println("Candidate " + savedCandidateDto);
 
-            CandidateDto savedCandidateDto = insertCandidate(candidateDto);
-            if (savedCandidateDto != null) {
-                System.out.println("Candidate is saved into db ");
-                System.out.println("Candidate " + savedCandidateDto);
-                addCandidateStageClosedCallbacks.stageClosed();
-                if (uploadedFileCallbacks.createFileUploadTable()) {
-                    assert fileName != null;
-                    try {
-                        UploadedFile uploadedFile = uploadedFileCallbacks.insertFile(new UploadedFile(
-                                savedCandidateDto.getId(),
-                                fileName,
-                                fileName.substring(fileName.lastIndexOf(".") + 1),
-                                filePath,
-                                null,
-                                Math.toIntExact(Files.size(path))
-                        ));
-                        UploadedFile saved = uploadedFileCallbacks.insertFile(uploadedFile);
-                        System.out.println("File: "+saved);
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
+                    if (uploadedFileCallbacks.createFileUploadTable()) {
+                        assert fileName != null;
+                        try {
+                            UploadedFile uploadedFile = uploadedFileCallbacks.insertFile(new UploadedFile(
+                                    savedCandidateDto.getId(),
+                                    fileName,
+                                    fileName.substring(fileName.lastIndexOf(".") + 1),
+                                    filePath,
+                                    null,
+                                    Math.toIntExact(Files.size(path))
+                            ));
+                            UploadedFile saved = uploadedFileCallbacks.insertFile(uploadedFile);
+                            System.out.println("File: " + saved);
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+
+                    } else {
+                        System.out.println("files table not created");
                     }
 
                 } else {
-                    System.out.println("files table not created");
+                    System.out.println("Candidate is not saved ");
+
                 }
-                stage.close();
             } else {
-                System.out.println("Candidate is not saved ");
+                candidateDto.setId(selectedCandidate.getId());
+                CandidateDto updatedCandidateDto = updateCandidate(candidateDto);
 
             }
+            addCandidateStageClosedCallbacks.stageClosed();
+            stage.close();
         });
 
         stage.showAndWait();
@@ -262,6 +287,10 @@ public class AddCandidatePage {
     private CandidateDto insertCandidate(CandidateDto candidateDto) {
         candidateCallbacks.createCandidateTable();
         return candidateCallbacks.insertCandidate(candidateDto);
+    }
+
+    private CandidateDto updateCandidate(CandidateDto candidateDto) {
+        return candidateCallbacks.updateCandidate(candidateDto);
     }
 
 }

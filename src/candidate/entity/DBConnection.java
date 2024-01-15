@@ -5,6 +5,7 @@ package candidate.entity;
  * @author nodirbek
  */
 import candidate.st.StaticValues;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;

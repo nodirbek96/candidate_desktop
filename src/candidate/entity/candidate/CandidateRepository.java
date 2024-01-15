@@ -7,6 +7,7 @@ package candidate.entity.candidate;
 
 import candidate.entity.DBConnection;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -123,19 +124,31 @@ public class CandidateRepository implements CandidateCallbacks {
             if (connection.isClosed()) {
                 connection = DBConnection.makeConnection();
             }
-            String query = "UPDATE candidates SET firstname='" + candidate.getFirstname() + "', "
-                    + "lastname='" + candidate.getLastname() + "', middlename='" + candidate.getMiddleName() + "', "
-                    + "birthdate='" + Date.valueOf(candidate.getBirthDate()) + "', address='" + candidate.getAddress() + "', "
-                    + "phone='" + candidate.getPhone() + "', job_place='" + candidate.getJobPlace() + "', occupation='" + candidate.getOccupation() + "', "
-                    + "education_place='" + candidate.getEducationPlace() + "', education='" + candidate.getEducationPlace() + "', "
-                    + "relative='" + candidate.getRelative() + "', position='" + candidate.getPosition() + "', passport='" + candidate.getPassport() + "', "
-                    + "end_date='" + Date.valueOf(candidate.getEndDate()) + "', result='" + candidate.getResult() + "' "
-                    + "WHERE id='" + candidate.getId() + "'";
+            String query = "UPDATE candidates SET firstname=?,lastname=?, middlename=?, "
+                    + "birthdate=?, address=?, phone=?, job_place=?, occupation=?, "
+                    + "education_place=?, education=?, relative=?, position=?, passport=?, "
+                    + "end_date=?, result=? WHERE id=? ";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, candidate.getFirstname());
+            preparedStatement.setString(2, candidate.getLastname());
+            preparedStatement.setString(3, candidate.getMiddleName());
+            preparedStatement.setDate(4, Date.valueOf(candidate.getBirthDate()));
+            preparedStatement.setString(5, candidate.getAddress());
+            preparedStatement.setString(6, candidate.getPhone());
+            preparedStatement.setString(7, candidate.getJobPlace());
+            preparedStatement.setString(8, candidate.getOccupation());
+            preparedStatement.setString(9, candidate.getEducationPlace());
+            preparedStatement.setString(10, candidate.getEducation());
+            preparedStatement.setString(11, candidate.getRelative());
+            preparedStatement.setString(12, candidate.getPosition());
+            preparedStatement.setString(13, candidate.getPassport());
+            preparedStatement.setDate(14, Date.valueOf(candidate.getEndDate()));
+            preparedStatement.setString(15, candidate.getResult());
+            preparedStatement.setInt(16, candidate.getId());
             preparedStatement.execute();
             updatedCandidate = candidate;
         } catch (SQLException e) {
-            System.out.println(e.getLocalizedMessage());
+            throw new RuntimeException(e);
         }
         return updatedCandidate;
     }
