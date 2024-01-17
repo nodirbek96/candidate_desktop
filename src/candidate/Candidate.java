@@ -90,7 +90,7 @@ public class Candidate extends Application {
         btnSubmit.setOnAction(e -> {
             boolean status = userTableCallbacks.checkUser(textFieldUsername.getText(), passwordField.getText());
             if (status) {
-                MainScreenPage mainScreenPage = new MainScreenPage();
+                new MainScreenPage();
             } else {
                 alert.setAlertType(Alert.AlertType.INFORMATION);
                 alert.setContentText("Пароль или имя пользователя неверны");

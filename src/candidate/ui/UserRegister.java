@@ -84,7 +84,7 @@ public class UserRegister {
         // actions..
         btnSave.setOnAction(e -> {
             userTableCallbacks.createUserTable();
-            if (txtFirstname.getText() != null && txtLastname.getText() != null && txtUsername.getText() != null && txtPassword.getText() != null) {
+            if (!txtFirstname.getText().isEmpty() && !txtLastname.getText().isEmpty() && !txtUsername.getText().isEmpty() && !txtPassword.getText().isEmpty()) {
                 userTableCallbacks.insertUser(new User(txtFirstname.getText(),
                         txtLastname.getText(),
                         txtUsername.getText(),
@@ -95,6 +95,9 @@ public class UserRegister {
                 alert.setContentText("Данные заполнены не верно");
                 alert.show();
             }
+        });
+        btnCancel.setOnAction(e -> {
+            stage.close();
         });
 
         stage.showAndWait();

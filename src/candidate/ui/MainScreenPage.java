@@ -14,6 +14,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -73,9 +74,10 @@ public class MainScreenPage implements AddCandidateStageClosedCallbacks {
 
         Label labelSearch = new Label(StaticValues.SEARCH);
         labelSearch.setFont(Font.font(StaticValues.MAINPAGE_FONT_VALUE));
+        Button btnUpdate = new Button("Обновить");
 
         hboxTop.getChildren().addAll(btnAddCandidate, labelSearch, labelSearchByFio,
-                txtFio, labelSearchPhone, txtPhone, labelBirthDate, txtBirthDate);
+                txtFio, labelSearchPhone, txtPhone, labelBirthDate, txtBirthDate, btnUpdate);
         hboxTop.setSpacing(10);
         VBox vboxTop = new VBox();
         vboxTop.setPadding(new Insets(5, 5, 5, 5));
@@ -85,7 +87,7 @@ public class MainScreenPage implements AddCandidateStageClosedCallbacks {
         root.setTop(vboxTop);
 
         tableView = new TableView<>();
-        tableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+
 
         //tableView.setPadding(new Insets(10, 0, 0, 0));
         TableColumn<CandidateDto, String> colId = new TableColumn<>("id");
@@ -121,8 +123,6 @@ public class MainScreenPage implements AddCandidateStageClosedCallbacks {
         makeHeaderWrappable(colPosition);
         TableColumn<CandidateDto, String> colPassport = new TableColumn<>("Пасспорт");
         colPassport.setCellValueFactory(new PropertyValueFactory<>("passport"));
-        TableColumn<CandidateDto, String> colFile = new TableColumn<>("Файл");
-
         TableColumn<CandidateDto, String> colEndDate = new TableColumn<>("Дата окончания");
         colEndDate.setCellValueFactory(new PropertyValueFactory<>("endDate"));
         makeHeaderWrappable(colEndDate);
@@ -149,9 +149,14 @@ public class MainScreenPage implements AddCandidateStageClosedCallbacks {
                 colBirthDate, colAddress, colPhone, colJobPlace, colOccupation, colEducationPlace,
                 colEducation, colRelative, colPosition, colPassport, colCreatedDate,
                 colResult, colEndDate);
-
+        tableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         tableView.setItems(getCandidatesFromDb());
-        root.setCenter(tableView);
+        ScrollPane scrollPane = new ScrollPane(tableView);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setFitToWidth(true);
+        root.setCenter(scrollPane);
 
         btnAddCandidate.setOnAction(e -> {
             AddCandidatePage addCandidatePage = new AddCandidatePage();
@@ -206,7 +211,56 @@ public class MainScreenPage implements AddCandidateStageClosedCallbacks {
             UserRegister userRegister = new UserRegister();
             userRegister.makeStage();
         });
+
+        txtFio.setOnKeyPressed(e -> {
+            if (e.getCode().isLetterKey()) {
+                String suffix = txtFio.getText();
+                tableView.setItems(sortedFioData(suffix));
+            } else if (!txtFio.getText().isEmpty() && e.getCode() == KeyCode.BACK_SPACE) {
+                String suffix = txtFio.getText();
+                tableView.setItems(sortedFioData(suffix));
+            }
+        });
+        txtPhone.setOnKeyPressed(e -> {
+            if (e.getCode().isLetterKey() || e.getCode().isDigitKey()) {
+                String suffix = txtPhone.getText();
+                tableView.setItems(sortedPhoneData(suffix));
+            } else if (!txtPhone.getText().isEmpty() && e.getCode() == KeyCode.BACK_SPACE) {
+                String suffix = txtPhone.getText();
+                tableView.setItems(sortedPhoneData(suffix));
+            }
+        });
+        txtBirthDate.setOnKeyPressed(e -> {
+            if (e.getCode().isLetterKey() || e.getCode().isDigitKey()) {
+                String suffix = txtBirthDate.getText();
+                tableView.setItems(sortedBirthDate(suffix));
+            } else if (!txtBirthDate.getText().isEmpty() && e.getCode() == KeyCode.BACK_SPACE) {
+                String suffix = txtBirthDate.getText();
+                tableView.setItems(sortedBirthDate(suffix));
+            }
+        });
+        btnUpdate.setOnAction(e -> {
+            tableView.setItems(getCandidatesFromDb());
+        });
         return root;
+    }
+
+    private ObservableList<CandidateDto> sortedFioData(String suffix) {
+        candidateCallbacks.createCandidateTable();
+        List<CandidateDto> sorted = candidateCallbacks.searchByFirstFirstnameOrLastnameOrMiddlename(suffix);
+        return FXCollections.observableArrayList(sorted);
+    }
+
+    private ObservableList<CandidateDto> sortedPhoneData(String suffix) {
+        candidateCallbacks.createCandidateTable();
+        List<CandidateDto> sorted = candidateCallbacks.searchByPhoneOrPassport(suffix);
+        return FXCollections.observableArrayList(sorted);
+    }
+
+    private ObservableList<CandidateDto> sortedBirthDate(String suffix) {
+        candidateCallbacks.createCandidateTable();
+        List<CandidateDto> sorted = candidateCallbacks.searchByBirthDate(suffix);
+        return FXCollections.observableArrayList(sorted);
     }
 
     private String isFileUploaded(Integer candidateId) {
@@ -226,7 +280,7 @@ public class MainScreenPage implements AddCandidateStageClosedCallbacks {
         return FXCollections.observableArrayList(listOfCandidates);
     }
 
-    private void makeHeaderWrappable(TableColumn col) {
+    private void makeHeaderWrappable(TableColumn<CandidateDto, String> col) {
         Label label = new Label(col.getText());
         label.setStyle("-fx-padding: 8px;");
         label.setWrapText(true);

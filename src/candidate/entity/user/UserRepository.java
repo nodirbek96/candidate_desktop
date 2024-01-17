@@ -72,7 +72,6 @@ public class UserRepository implements UserTableCallbacks {
         }
         return insertedUser;
     }
-
     @Override
     public User updateUser(User user) {
         User updatedUser = null;
