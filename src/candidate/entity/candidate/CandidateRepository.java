@@ -264,7 +264,7 @@ public class CandidateRepository implements CandidateCallbacks {
             if (connection.isClosed()) {
                 connection = DBConnection.makeConnection();
             }
-            String query = "SELECT * FROM candidates WHERE firstname LIKE '%" + suffix + "%' OR lastname LIKE '%" + suffix + "%' OR middlename LIKE '%" + suffix + "%'";
+            String query = "SELECT * FROM candidates WHERE firstname LIKE '%" + suffix + "%' OR lastname LIKE '%" + suffix + "%' OR middlename LIKE '%" + suffix + "%' ORDER BY id DESC";
             list = getCandidates(query);
         } catch (SQLException e) {
             System.out.println(e.getLocalizedMessage());
@@ -280,7 +280,7 @@ public class CandidateRepository implements CandidateCallbacks {
             if (connection.isClosed()) {
                 connection = DBConnection.makeConnection();
             }
-            String query = "SELECT * FROM candidates WHERE phone LIKE '%" + suffix + "%' OR passport LIKE '%" + suffix + "%'";
+            String query = "SELECT * FROM candidates WHERE phone LIKE '%" + suffix + "%' OR passport LIKE '%" + suffix + "%' ORDER BY id DESC";
             list = getCandidates(query);
         } catch (SQLException e) {
             System.out.println(e.getLocalizedMessage());
@@ -297,7 +297,7 @@ public class CandidateRepository implements CandidateCallbacks {
                 connection = DBConnection.makeConnection();
             }
             String query = "SELECT * FROM candidates WHERE job_place LIKE '%" + suffix + "%' OR occupation LIKE '%" + suffix + "%' OR education LIKE '%" + suffix + "%' OR "
-                    + " position LIKE '%" + suffix + "%'";
+                    + " position LIKE '%" + suffix + "%' ORDER BY id DESC";
             list = getCandidates(query);
         } catch (SQLException e) {
             System.out.println(e.getLocalizedMessage());
@@ -313,7 +313,7 @@ public class CandidateRepository implements CandidateCallbacks {
             if (connection.isClosed()) {
                 connection = DBConnection.makeConnection();
             }
-            String query = "SELECT * FROM candidates WHERE birthdate LIKE '%" + suffix + "%'";
+            String query = "SELECT * FROM candidates WHERE birthdate LIKE '%" + suffix + "%' ORDER BY id DESC";
             list = getCandidates(query);
         } catch (SQLException e) {
             System.out.println(e.getLocalizedMessage());

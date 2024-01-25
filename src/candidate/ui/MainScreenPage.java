@@ -30,8 +30,7 @@ import java.util.List;
 
 public class MainScreenPage implements AddCandidateStageClosedCallbacks {
 
-    private Candidate candidate;
-    private Stage primaryStage;
+    private final Stage primaryStage;
     private final CandidateCallbacks candidateCallbacks;
     private final UploadedFileCallbacks uploadedFileCallbacks;
     private TableView<CandidateDto> tableView;
@@ -39,7 +38,6 @@ public class MainScreenPage implements AddCandidateStageClosedCallbacks {
     public MainScreenPage() {
         candidateCallbacks = new CandidateRepository();
         uploadedFileCallbacks = new UploadedFileRepository();
-        candidate = new Candidate();
         this.primaryStage = StaticValues.STAGE;
         primaryStage.setScene(new Scene(makePane()));
     }
@@ -57,7 +55,7 @@ public class MainScreenPage implements AddCandidateStageClosedCallbacks {
         menuBar.getMenus().add(menu);
         MenuItem menuUserRegister = new MenuItem("Зарегистрировать пользователя");
 
-        MenuItem menuContacts = new Menu("Contacts");
+        MenuItem menuContacts = new Menu("Выход");
         menu.getItems().addAll(menuUserRegister, menuContacts);
 
         HBox hboxTop = new HBox();
@@ -211,30 +209,33 @@ public class MainScreenPage implements AddCandidateStageClosedCallbacks {
             UserRegister userRegister = new UserRegister();
             userRegister.makeStage();
         });
+        menuContacts.setOnAction(e->{
+           primaryStage.setScene(StaticValues.sceneStart);
+           primaryStage.setMaximized(true);
+        });
 
-        txtFio.setOnKeyPressed(e -> {
+        txtFio.setOnKeyReleased(e -> {
+            String suffix = txtFio.getText();
             if (e.getCode().isLetterKey()) {
-                String suffix = txtFio.getText();
                 tableView.setItems(sortedFioData(suffix));
-            } else if (!txtFio.getText().isEmpty() && e.getCode() == KeyCode.BACK_SPACE) {
-                String suffix = txtFio.getText();
+            } else if (e.getCode() == KeyCode.BACK_SPACE) {
                 tableView.setItems(sortedFioData(suffix));
             }
         });
-        txtPhone.setOnKeyPressed(e -> {
+        txtPhone.setOnKeyReleased(e -> {
             if (e.getCode().isLetterKey() || e.getCode().isDigitKey()) {
                 String suffix = txtPhone.getText();
                 tableView.setItems(sortedPhoneData(suffix));
-            } else if (!txtPhone.getText().isEmpty() && e.getCode() == KeyCode.BACK_SPACE) {
+            } else if (e.getCode() == KeyCode.BACK_SPACE) {
                 String suffix = txtPhone.getText();
                 tableView.setItems(sortedPhoneData(suffix));
             }
         });
-        txtBirthDate.setOnKeyPressed(e -> {
+        txtBirthDate.setOnKeyReleased(e -> {
             if (e.getCode().isLetterKey() || e.getCode().isDigitKey()) {
                 String suffix = txtBirthDate.getText();
                 tableView.setItems(sortedBirthDate(suffix));
-            } else if (!txtBirthDate.getText().isEmpty() && e.getCode() == KeyCode.BACK_SPACE) {
+            } else if (e.getCode() == KeyCode.BACK_SPACE) {
                 String suffix = txtBirthDate.getText();
                 tableView.setItems(sortedBirthDate(suffix));
             }

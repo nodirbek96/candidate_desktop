@@ -23,9 +23,10 @@ public class Candidate extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+
         UserTableCallbacks userTableCallbacks = new UserRepository();
         userTableCallbacks.createUserTable();
-        // userTableCallbacks.insertUser(new User("Nodirbek","Hasanboev","creator","1234"));
+        userTableCallbacks.insertUser(new User("Nodirbek", "Hasanboev", "creator", "1234"));
         Alert alert = new Alert(Alert.AlertType.NONE);
 
         BorderPane borderPane = new BorderPane();
@@ -44,6 +45,7 @@ public class Candidate extends Application {
         TextField textFieldUsername = new TextField();
         textFieldUsername.setFont(Font.font(StaticValues.LOGIN_FONT_VALUE));
         PasswordField passwordField = new PasswordField();
+        passwordField.clear();
         passwordField.setFont(Font.font(StaticValues.LOGIN_FONT_VALUE));
         Button btnSubmit = new Button(StaticValues.SUBMIT);
         btnSubmit.setFont(Font.font(StaticValues.LOGIN_FONT_VALUE));
@@ -74,11 +76,12 @@ public class Candidate extends Application {
         borderPane.setCenter(vbox);
         root.getChildren().add(borderPane);
 
-        StaticValues.STAGE = primaryStage;
         double height = Screen.getPrimary().getVisualBounds().getHeight();
         double width = Screen.getPrimary().getVisualBounds().getWidth();
-
-        Scene scene = new Scene(root, 300, 250);
+        borderPane.setMinSize(width, height);
+        Scene scene = new Scene(root);
+        StaticValues.STAGE = primaryStage;
+        StaticValues.sceneStart = scene;
         primaryStage.setMinHeight(height);
         primaryStage.setMinWidth(width);
         primaryStage.setTitle("Candidate");
