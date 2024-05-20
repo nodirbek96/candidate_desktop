@@ -172,6 +172,26 @@ public class MainScreenPage implements AddCandidateStageClosedCallbacks {
                 alert.show();
             }
         });
+        deleteMenuItem.setOnAction(e -> {
+            CandidateDto selectedCandidateDto = tableView.getSelectionModel().getSelectedItem();
+            if (selectedCandidateDto != null) {
+                boolean isDeleted = candidateCallbacks.deleteCandidateById(selectedCandidateDto.getId());
+                if (isDeleted) {
+                    tableView.setItems(getCandidatesFromDb());
+                    alert.setAlertType(Alert.AlertType.INFORMATION);
+                    alert.setContentText("Кандидат удален");
+                    alert.show();
+                } else {
+                    alert.setAlertType(Alert.AlertType.ERROR);
+                    alert.setContentText("Кандидат не удален из-за внутренней ошибки");
+                    alert.show();
+                }
+            } else {
+                alert.setAlertType(Alert.AlertType.WARNING);
+                alert.setContentText("Кандидат не выбран");
+                alert.show();
+            }
+        });
 
         showMenuItem.setOnAction(e -> {
             CandidateDto selectedCandidateDto = tableView.getSelectionModel().getSelectedItem();
@@ -209,9 +229,9 @@ public class MainScreenPage implements AddCandidateStageClosedCallbacks {
             UserRegister userRegister = new UserRegister();
             userRegister.makeStage();
         });
-        menuContacts.setOnAction(e->{
-           primaryStage.setScene(StaticValues.sceneStart);
-           primaryStage.setMaximized(true);
+        menuContacts.setOnAction(e -> {
+            primaryStage.setScene(StaticValues.sceneStart);
+            primaryStage.setMaximized(true);
         });
 
         txtFio.setOnKeyReleased(e -> {

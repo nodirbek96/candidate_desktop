@@ -8,8 +8,8 @@ package candidate.entity.user;
 import java.util.List;
 
 public interface UserTableCallbacks {
-    boolean createUserTable();
-    User insertUser(User user);
+    void createUserTable();
+    void insertUser(User user);
     User updateUser(User user);
     boolean deleteUser(Integer id);
     User getUser(Integer id);

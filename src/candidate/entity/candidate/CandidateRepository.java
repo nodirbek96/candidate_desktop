@@ -7,7 +7,6 @@ package candidate.entity.candidate;
 
 import candidate.entity.DBConnection;
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +15,7 @@ public class CandidateRepository implements CandidateCallbacks {
     private Connection connection;
 
     @Override
-    public boolean createCandidateTable() {
+    public void createCandidateTable() {
         connection = DBConnection.makeConnection();
         boolean status = false;
         try {
@@ -50,7 +49,6 @@ public class CandidateRepository implements CandidateCallbacks {
         } catch (SQLException e) {
             System.out.println(e.getLocalizedMessage());
         }
-        return status;
     }
 
     @Override

@@ -3,7 +3,7 @@ package candidate.entity.candidate;
 import java.util.List;
 
 public interface CandidateCallbacks {
-    boolean createCandidateTable();
+    void createCandidateTable();
     CandidateDto insertCandidate(CandidateDto candidate);
     CandidateDto updateCandidate(CandidateDto candidate);
     CandidateDto getCandidateById(Integer id);

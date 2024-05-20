@@ -51,8 +51,7 @@ public class Candidate extends Application {
         btnSubmit.setFont(Font.font(StaticValues.LOGIN_FONT_VALUE));
         StackPane stackSubmit = new StackPane();
         StackPane root = new StackPane();
-        root.setStyle(""
-                + "-fx-background-image: url('" + StaticValues.IMAGE_URL + "');"
+        root.setStyle("-fx-background-image: url('" + StaticValues.IMAGE_URL + "');"
                 + "-fx-background-position: center center;"
                 + "-fx-background-repeat: stretch;"
                 + "-fx-background-size: cover;");

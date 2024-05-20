@@ -10,7 +10,7 @@ public class UserRepository implements UserTableCallbacks {
     private Connection connection;
 
     @Override
-    public boolean createUserTable() {
+    public void createUserTable() {
         connection = DBConnection.makeConnection();
         boolean status;
         try {
@@ -33,11 +33,10 @@ public class UserRepository implements UserTableCallbacks {
             status = false;
             System.out.println("Exception: " + e.getLocalizedMessage());
         }
-        return status;
     }
 
     @Override
-    public User insertUser(User user) {
+    public void insertUser(User user) {
         connection = DBConnection.makeConnection();
         User insertedUser = null;
         try {
@@ -70,7 +69,6 @@ public class UserRepository implements UserTableCallbacks {
         } catch (SQLException e) {
             System.out.println(e.getLocalizedMessage());
         }
-        return insertedUser;
     }
     @Override
     public User updateUser(User user) {
